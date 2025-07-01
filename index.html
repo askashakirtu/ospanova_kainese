@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Смена картинок при прокрутке с аудио</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body, html { height: 100%; overflow-y: auto; background-color: #00423A;scroll-snap-type: y mandatory; font-family: Arial, sans-serif; color: #fff; scroll-behavior: smooth; }
+
+    /* Аудио-кнопка */
+     /* Аудио-кнопка */
+    #audio-toggle {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 80px;
+      cursor: pointer;
+      z-index: 1000;
+      animation: pulse 2s infinite ease-in-out;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: translateX(-50%) scale(1); }
+      50% { transform: translateX(-50%) scale(1.2); }
+    }
+    #audio-toggle svg { width: 100%; height: 100%; fill: #fff; }
+
+    .page {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      scroll-snap-align: start;
+    }
+    .page img { display: block; width: 100vw; height: auto; object-fit: cover; }
+    .fade-in-top { animation: fadeInTop 1.2s ease-out forwards; }
+    .fade-in { animation: fadeIn 1.2s ease-out forwards; }
+    .fade-in-bottom { animation: fadeInBottom 1.2s ease-out forwards; }
+    .zoom-in { animation: zoomIn 10s linear forwards; }
+    @keyframes fadeInTop { from { opacity: 0; transform: translateY(-60px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes fadeInBottom { from { opacity: 0; transform: translateY(60px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes zoomIn { from { transform: scale(1); } to { transform: scale(1.2); } }
+  </style>
+</head>
+<body>
+
+  <!-- Аудио -->
+  <audio id="background-audio" src="43fbd5508e60e11.mp3" autoplay loop></audio>
+
+  <!-- Кнопка громкости -->
+  <div id="audio-toggle" title="Включить/выключить звук">
+    <!-- Иконка звука -->
+    <svg id="icon-on" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M3 9v6h4l5 5V4L7 9H3z" />
+      <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.06c1.48-.74 2.5-2.26 2.5-4.03z"/>
+    </svg>
+    <!-- Иконка без звука -->
+    <svg id="icon-off" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display: none;">
+      <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.06c1.48-.74 2.5-2.26 2.5-4.03z"/>
+      <path d="M3 9v6h4l5 5V4l-5 5H3z" opacity="0.3"/>
+      <line x1="1" y1="1" x2="23" y2="23" stroke="#fff" stroke-width="2"/>
+    </svg>
+  </div>
+
+  <!-- Страницы -->
+  <div class="page">
+    <img src="1.png" alt="1-я верхняя" class="fade-in-top">
+    <img src="3.png" alt="1-я средняя" class="fade-in">
+    <img src="2.png" alt="1-я нижняя" class="fade-in-bottom">
+  </div>
+  <div class="page">
+    <img src="4.png" alt="2-я верхняя" class="zoom-in" data-anim="zoom-in">
+    <img src="5.png" alt="2-я средняя" class="fade-in-top" data-anim="fade-in">
+    <img src="6.png" alt="2-я нижняя" class="fade-in-bottom" data-anim="fade-in-bottom">
+  </div>
+ <div class="page">
+    <img src="7.png" alt="2-я верхняя" class="fade-in-top" data-anim="fade-in-top">
+    <img src="8.png" alt="2-я средняя" style="width: 50% !important; height: auto !important;" class="fade-in-bottom" data-anim="fade-in-bottom">
+    <img src="9.png" alt="2-я нижняя" class="zoom-in" data-anim="zoom-in">
+  </div>
+  <script>
+    
+    const audio = document.getElementById('background-audio');
+    const toggle = document.getElementById('audio-toggle');
+    const iconOn = document.getElementById('icon-on');
+    const iconOff = document.getElementById('icon-off');
+
+    toggle.addEventListener('click', () => {
+      audio.muted = !audio.muted;
+      iconOn.style.display = audio.muted ? 'none' : 'block';
+      iconOff.style.display = audio.muted ? 'block' : 'none';
+    });
+
+    // Анимация при прокрутке (IntersectionObserver)
+    const observer = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add(entry.target.dataset.anim);
+          obs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.3 });
+
+    document.querySelectorAll('img[data-anim]').forEach(img => {
+      img.classList.remove(img.dataset.anim);
+      observer.observe(img);
+    });
+  </script>
+</body>
+</html>
